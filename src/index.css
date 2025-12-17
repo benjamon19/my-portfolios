@@ -1,0 +1,132 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+/* --- OBLIGATORIO PARA TAILWINDCSS V4 --- */
+@import "tailwindcss";
+
+/* --- CONFIGURACIÓN DEL TEMA (V4) --- */
+@theme {
+  --color-primary: #fbbf24;      /* Dorado */
+  --color-primary-dim: #b45309;  /* Cobre */
+  --color-dark: #050505;         /* Negro Puro */
+  --color-surface: #0f172a;      /* Azul Medianoche */
+  --color-text: #e2e8f0;         /* Plata/Blanco */
+  --color-dim: #64748b;          /* Gris */
+  --color-accent: #ef4444;       /* Rojo Arcade */
+
+  --font-mono: "Press Start 2P", monospace;
+  --font-sans: "Press Start 2P", monospace;
+  
+  --animate-blink: blink 1s step-end infinite;
+  
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+}
+
+@layer base {
+  :root {
+    --cursor-url: url('data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQCAYAAAAf8/9hAAAAAXNSR0IArs4c6QAAABxpRE9UAAAAAgAAAAAAAAAAAAAAAKAAAAAAAKAAAAAAVP5ZTAAAADFJREFUOBFjYBSMHgxEiv//zsD4/z8D4w8Gxv///2dg/M/A+J+B8T8D438Gxv///2f4DwDtDCFtu3742AAAAABJRU5ErkJggg==');
+  }
+
+  /* --- FUERZA BRUTA DE PIXELES --- */
+  *, *::before, *::after {
+    -webkit-font-smoothing: none !important;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeSpeed;
+    image-rendering: pixelated !important;
+  }
+
+  html {
+    background-color: var(--color-dark);
+    color: var(--color-text);
+    font-family: var(--font-mono);
+  }
+
+  body {
+    cursor: var(--cursor-url), auto;
+    overflow-x: hidden;
+    background-color: var(--color-dark);
+    
+    /* --- FONDO DE PIXELES DE ALTO CONTRASTE --- */
+    background-image: 
+      /* 1. La textura de Píxeles (Checkboard visible) */
+      /* Usamos #171717 (gris oscuro) contra transparente (negro fondo) para alto contraste */
+      repeating-conic-gradient(#171717 0% 25%, transparent 0% 50%) 0 0 / 4px 4px,
+      
+      /* 2. Grid principal (Líneas doradas más visibles) */
+      linear-gradient(rgba(251, 191, 36, 0.15) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(251, 191, 36, 0.15) 1px, transparent 1px);
+      
+    /* Tamaño de los patrones: 4px para los pixeles, 50px para la cuadrícula */
+    background-size: 4px 4px, 50px 50px, 50px 50px;
+    background-position: 0 0, 0 0, 0 0;
+  }
+
+  /* --- SCROLLBAR --- */
+  ::-webkit-scrollbar { width: 14px; background: var(--color-dark); }
+  
+  ::-webkit-scrollbar-track { 
+    border-left: 2px solid var(--color-surface);
+    background-image: repeating-conic-gradient(#171717 0% 25%, transparent 0% 50%) 0 0 / 4px 4px;
+  }
+  
+  ::-webkit-scrollbar-thumb { 
+    background: #334155; 
+    border: 3px solid var(--color-dark); 
+    box-shadow: inset 2px 2px 0 rgba(255,255,255,0.1);
+    background-image: repeating-conic-gradient(#3f4f64 0% 25%, #334155 0% 50%) 0 0 / 4px 4px;
+  }
+  
+  ::-webkit-scrollbar-thumb:hover { 
+    background: var(--color-accent);
+    border-color: var(--color-dark);
+    background-image: repeating-conic-gradient(#f87171 0% 25%, #ef4444 0% 50%) 0 0 / 4px 4px;
+  }
+}
+
+@layer utilities {
+  .btn-primary, .btn-pixel {
+    display: inline-flex; align-items: center; justify-content: center; padding: 12px 24px;
+    background-color: var(--color-primary);
+    background-image: repeating-conic-gradient(#fcd34d 0% 25%, #fbbf24 0% 50%) 0 0 / 4px 4px;
+    color: #000; font-size: 10px; text-transform: uppercase; font-weight: bold;
+    box-shadow: inset -4px -4px 0px 0px var(--color-primary-dim), 4px 4px 0px 0px #000;
+    transition: transform 0.1s; cursor: pointer; border: none;
+  }
+  .btn-primary:active, .btn-pixel:active {
+    transform: translate(2px, 2px);
+    box-shadow: inset -2px -2px 0px 0px var(--color-primary-dim), 2px 2px 0px 0px #000;
+  }
+
+  /* Capa de puntos "Dither" - Reducida ligeramente para no tapar el fondo nuevo */
+  .dither-overlay {
+    background-image: 
+      radial-gradient(circle, rgba(251, 191, 36, 0.05) 1px, transparent 1px);
+    background-size: 4px 4px;
+    pointer-events: none;
+    position: fixed;
+    inset: 0;
+    z-index: 9998;
+    opacity: 0.7; /* Leve transparencia para dejar ver los pixeles de fondo */
+  }
+
+  /* LENTE DE DISTORSIÓN */
+  .mouse-distortion-lens {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    backdrop-filter: url(#pixel-displacement); 
+    -webkit-backdrop-filter: url(#pixel-displacement);
+    mask-image: radial-gradient(circle 150px at var(--mouse-x) var(--mouse-y), black 0%, transparent 100%);
+    -webkit-mask-image: radial-gradient(circle 150px at var(--mouse-x) var(--mouse-y), black 0%, transparent 100%);
+    
+    /* Brillo en la distorsión para resaltar el efecto */
+    background: radial-gradient(
+        circle 150px at var(--mouse-x) var(--mouse-y),
+        rgba(251, 191, 36, 0.1) 0%,
+        transparent 70%
+    );
+  }
+}
